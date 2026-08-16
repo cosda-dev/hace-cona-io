@@ -1,0 +1,23 @@
+[package]
+name = "hace-cona-io"
+version = "0.1.0"
+edition = "2021"
+description = "CONA IO FEM module"
+license = "Proprietary"
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = []
+# Enable FIM (Feature Inference Module) integration for CI/CE metrics
+fim = ["dep:hace-cona-fim"]
+
+[dependencies]
+hace-cona-fem-shell = { path = "../fem/shell" }
+hace-io-rac = { path = "../../io/rac" }
+hace-cona-fim = { path = "../fim", optional = true }
+tokio = { version = "1", features = ["time"] }
+blake3 = "=1.5.1"
+spin = { version = "0.9", default-features = false, features = ["rwlock"] }

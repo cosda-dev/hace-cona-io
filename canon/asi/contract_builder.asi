@@ -1,0 +1,5 @@
+asi:
+  contract_builder:
+    step1: bind_rac_contract
+    step2: bind_http_contract
+    step3: bind_mcp_contract

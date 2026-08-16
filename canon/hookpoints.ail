@@ -1,0 +1,6 @@
+hookpoints:
+  - name: port
+  - name: pre
+  - name: execute
+  - name: after
+  - name: gate

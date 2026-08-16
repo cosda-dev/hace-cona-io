@@ -1,0 +1,6 @@
+header:
+  id: FAV://cona.io.v1
+  intent: RENDER_EXPERIENCE
+
+intent_vibe: unified_ingress
+tags: [io, rac, http, mcp]

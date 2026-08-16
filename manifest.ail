@@ -1,0 +1,13 @@
+header:
+  id: AMO://cona.io.v1
+  intent: DECLARE_SCHEMA
+  status: ACTIVE
+
+entity:
+  name: cona_io
+  fields:
+    id: "cona.io"
+    version: "0.1.0@e"
+    runtime: "rust"
+    dependencies:
+      - "cona.base"

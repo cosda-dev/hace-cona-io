@@ -1,0 +1,6 @@
+asi:
+  select_runtime:
+    - condition: local
+      use: native_io_router
+    - condition: remote
+      use: rac_bridge_router

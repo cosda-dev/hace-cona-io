@@ -1,0 +1,3 @@
+[io]
+id = "cona.io"
+channels = ["rac", "http", "mcp"]

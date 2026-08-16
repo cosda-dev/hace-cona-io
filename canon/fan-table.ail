@@ -1,0 +1,14 @@
+header:
+  id: CANON://cona.io.fan_table.v1
+  intent: EXECUTE_LOGIC
+
+fan:
+  - id: cona.io.rac
+    wit: cona:io/rac
+    caem: route-resolve
+  - id: cona.io.http
+    wit: cona:io/http
+    caem: ingress-http
+  - id: cona.io.mcp
+    wit: cona:io/mcp
+    caem: ingress-mcp
