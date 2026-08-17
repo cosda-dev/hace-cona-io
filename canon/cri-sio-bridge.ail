@@ -1,0 +1,133 @@
+# HEADER
+header:
+  id: SMF://hace.cona.io.cri.sio-bridge.v1
+  intent: DECLARE_SCHEMA
+  status: ACTIVE
+  locale: vi-85
+  version: "1.0.0"
+
+# CANON
+# CRI can transport SIO data through either runtime-native direct transfer
+# or representation conversion. FDI enables direct transfer; FFI/FPI/API
+# normally use resourceized representations when crossing runtime boundaries.
+
+architecture:
+  exporter:
+    role: cona_runtime_source
+    object_formats: [php, rust, python, go]
+
+  cri_entry:
+    interfaces: [fpi, fdi]
+    role: cross_runtime_boundary
+
+  hace_sio_stream:
+    role: sio_conversion_and_stream_layer
+    capabilities:
+      - stream
+      - encode
+      - decode
+      - format_conversion
+      - pass_through
+
+  cri_exit:
+    interfaces: [ffi, fpi, fdi]
+    role: cross_runtime_boundary
+
+  importer:
+    role: cona_runtime_target
+    object_formats: [php, rust, python, go]
+
+flow:
+  canonical:
+    - cona_exporter
+    - cri_fpi_or_fdi
+    - hace_sio_stream
+    - cri_ffi_fpi_or_fdi
+    - cona_importer
+
+transfer_policy:
+  same_runtime:
+    condition: compatible_runtime_and_lineage
+    mode: pass_through
+    conversion: none
+    semantics: runtime_native
+
+  cross_runtime:
+    condition: incompatible_runtime_representation
+    mode: resourceized
+    conversion: required
+    representations: [json, yaml, bytes]
+
+  direct_runtime_transfer:
+    condition: compatible_runtime_lineage_and_capability
+    mode: direct_transfer
+    conversion: none
+    interface: CRI_FDI
+    object_semantics: preserved
+
+format_registry:
+  path: sio/format
+  adapters:
+    - runtime: php
+      formats: [json]
+      operations: [encode, decode]
+    - runtime: go
+      formats: [json]
+      operations: [encode, decode]
+    - runtime: rust
+      formats: [json]
+      operations: [encode, decode]
+    - runtime: python
+      formats: [json]
+      operations: [encode, decode]
+  extension_rule: "additional format adapters may be registered without changing CRI semantics"
+
+semantic_modes:
+  FDI:
+    transfer: direct_runtime_native
+    resourceization: optional
+    pass_through: allowed
+  FPI:
+    transfer: invocation_process_instance
+    resourceization: default_for_cross_runtime
+  FFI:
+    transfer: foreign_function_abi
+    resourceization: default_when representation crossing is required
+  API:
+    transfer: external_resource_contract
+    resourceization: required
+
+sio_contract:
+  stream_is_transport_neutral: true
+  envelope_semantics_preserved: true
+  representation_is_pluggable: true
+  direct_transfer_is_not_serialization: true
+  pass_through_is_not_resourceization: true
+
+selection:
+  algorithm:
+    - validate_authority
+    - validate_lineage
+    - inspect_source_runtime
+    - inspect_target_runtime
+    - inspect_requested_interface
+    - if_compatible_select_fdi_or_passthrough
+    - else_select_sio_format_adapter
+    - execute_via_canonical_transport
+
+security:
+  direct_transfer:
+    still_requires:
+      - authority
+      - capability
+      - provenance
+      - license
+      - hookpoint
+  rule: "format bypass never means governance bypass"
+
+invariants:
+  - "hace-sio-stream owns representation conversion, not CRI semantics"
+  - "CRI selects the interface/transfer mode"
+  - "FDI may carry SIO data without serialization when runtime-native transfer is valid"
+  - "same-runtime pass-through is the preferred zero-conversion path"
+  - "cross-runtime conversion is selected only when direct compatibility is unavailable"
