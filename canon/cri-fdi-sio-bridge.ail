@@ -1,0 +1,102 @@
+# HEADER
+header:
+  id: SMF://hace.cona.io.cri.fdi.sio-bridge.v1
+  intent: DECLARE_SCHEMA
+  status: ACTIVE
+  locale: vi-85
+  version: "1.0.0"
+
+# CANON
+# CRI FDI can carry SIO data between CONA runtimes while the SIO payload
+# is converted/serialized inside the FDI bridge. FDI therefore defines the
+# runtime interface boundary; SIO/format defines the representation boundary.
+
+model:
+  boundary:
+    interface: CRI_FDI
+    semantic: direct_cross_runtime_interface
+  stream:
+    carrier: hace_sio_stream
+    role: data_stream_converter
+  representation:
+    owner: sio/format
+    supported: [json, yaml, bytes]
+
+flow:
+  export:
+    source: "Cona exporter"
+    object_format: [php, rust, python, go]
+  fdi_ingress:
+    interface: CRI_FDI
+    operation: direct_transfer
+  sio_stream:
+    component: hace_sio_stream
+    stages:
+      - encode
+      - strization
+      - stream
+      - decode
+    formats:
+      json:
+        implementations: [json.php, json.go, json.rs, json.py]
+      yaml:
+        implementations: [yaml.php, yaml.go, yaml.rs, yaml.py]
+      bytes:
+        implementations: [bytes.php, bytes.go, bytes.rs, bytes.py]
+  fdi_egress:
+    interface: CRI_FDI
+    operation: direct_transfer
+  import:
+    target: "Cona importer"
+    object_format: [php, rust, python, go]
+
+semantic_layers:
+  cri_fdi:
+    role: runtime_boundary
+    property: direct_transfer
+    resourceization_required: false
+  hace_sio_stream:
+    role: representation_bridge
+    property: format_conversion
+    resourceization_allowed: true
+  sio_format:
+    role: codec_family
+    property: encode_decode_symmetry
+
+important_distinction:
+  statement: "FDI directness applies to the runtime interface boundary, not necessarily to the internal representation of every SIO payload."
+  result: "A direct FDI bridge may use JSON/YAML/bytes internally without becoming an API/FFI/FPI resourceized interface."
+
+object_semantics:
+  boundary_preservation: true
+  stream_representation: may_change
+  importer_reconstruction: allowed
+  target_extension: allowed
+  note: "The imported runtime object can regain native semantics after SIO decoding."
+
+compatibility:
+  source_runtime: [php, rust, python, go]
+  target_runtime: [php, rust, python, go]
+  requirement:
+    - compatible_fdi_contract
+    - compatible_sio_schema
+    - compatible_capability
+    - authority_validation
+    - provenance_validation
+
+security:
+  direct_transfer_does_not_bypass:
+    - authority
+    - capability
+    - provenance
+    - hookpoint
+    - license
+    - infrastructure_fee
+
+comparison:
+  conventional:
+    flow: "object -> SIO -> encoder -> resourceization -> decoder -> object"
+    examples: [FFI, FPI, API]
+  fdi_sio_bridge:
+    flow: "object -> CRI_FDI -> hace_sio_stream -> CRI_FDI -> object"
+    property: "FDI owns the runtime boundary; SIO owns the representation conversion"
