@@ -1,0 +1,43 @@
+# HEADER
+header:
+  id: SMF://hace.cona.io.cri-fpi.v1
+  intent: DECLARE_SCHEMA
+  status: ACTIVE
+  locale: vi-85
+  version: "1.0.0"
+
+cri:
+  role: cross_runtime_interface_family
+  fpi:
+    full_name: function_process_instance
+    semantic: architectural_execution_instance
+    payload:
+      action: string
+      process:
+        instance: string
+        lifecycle: string
+      input: bytes
+      options: object
+
+  ffi:
+    full_name: foreign_function_interface
+    semantic: low_level_abi_mechanism
+
+  relationship:
+    rule: "FPI and FFI are not interchangeable."
+    allowed_backends:
+      - ffi
+      - wasm_abi
+      - host_call
+      - shared_memory
+      - transport_adapter
+
+execution:
+  sequence:
+    - rac_uri
+    - racor
+    - cri_fpi_resolution
+    - sio
+    - race_execute
+    - transport
+    - output
