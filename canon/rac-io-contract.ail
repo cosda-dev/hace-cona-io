@@ -1,0 +1,123 @@
+# HEADER
+header:
+  id: SMF://hace.cona.io.rac-contract.v1
+  intent: DECLARE_SCHEMA
+  status: ACTIVE
+  locale: vi-85
+  version: "1.0.0"
+
+# CANON
+# hace-cona-io is the CONA IO FEM consumer/assembler.
+# Canonical transport/interface DNA is owned by hace-io-rac.
+# RACE is the execution/router layer above transport.
+
+architecture:
+  cona_io:
+    role: consumer_assembler
+    responsibilities:
+      - cognitive_routing
+      - protocol_selection
+      - adapter_assembly
+      - ingress_egress_orchestration
+      - flow_control
+    forbidden:
+      - transport_implementation
+      - authority_binding
+      - direct_transport_bypass
+
+  hace_io_rac:
+    role: canonical_io_transport
+    responsibility:
+      - transport
+      - framing
+      - codec
+      - channel
+    ownership: canonical
+
+  race:
+    role: execution_router
+    responsibilities:
+      - resolve
+      - route
+      - execute
+      - borrow_capacity
+
+contracts:
+  rac_uri:
+    role: routing_identity
+    semantic: "WHO / WHERE / WHICH capability boundary"
+    form: "rac://{rns}/{path}"
+    implementation_path_allowed: false
+
+  sio:
+    role: invocation_data_contract
+    semantic: "input / process / output execution envelope"
+    fields:
+      - uri
+      - method
+      - payload
+      - headers
+      - context
+
+  transport:
+    role: byte_movement
+    owner: hace-io-rac
+
+interface_families:
+  cri:
+    role: cross_runtime_interface
+    members:
+      fdi: functional_data_interface
+      fpi: function_process_instance
+      ffi: foreign_function_interface
+      hc: host_call
+      smb: shared_memory_boundary
+  lti:
+    role: local_transport_interface
+    examples: [stdio, pipe, unix]
+  rli:
+    role: remote_transport_interface
+    examples: [http, ws, grpc]
+
+semantic_separation:
+  fpi: "architectural execution instance"
+  ffi: "low-level ABI mechanism"
+  note: "FPI may use FFI, WASM ABI, HostCall, SHM or transport adapters."
+
+rns:
+  cri: cross_runtime_interface
+  lti: local_transport
+  rli: remote_transport
+  a2a: actor_to_actor
+  box: exchange_boundary
+  net: rac_network
+  on: ownership_network
+  cli: cli_capability_boundary
+
+capacity_federation:
+  qide:
+    role: capacity_provider
+    capability: uri_resolution
+  ripe:
+    role: capacity_provider
+    capability: sio_processing
+  clie:
+    role: capacity_provider
+    capability: cli_execution
+  race:
+    role: capacity_orchestrator
+    actions: [resolve, route, borrow, bind, execute, return]
+
+flow:
+  - rac_uri
+  - racor_resolution
+  - sio
+  - race_execution
+  - transport_via_hace_io_rac
+  - response
+
+compatibility:
+  source_of_transport_truth: hace-io-rac
+  consumer_module: hace-cona-io
+  execution_layer: hace-me-race
+  authority_layer: external_to_cona_io

@@ -1,0 +1,107 @@
+# HEADER
+header:
+  id: SMF://hace.cona.io.cri.fdi.v1
+  intent: DECLARE_SCHEMA
+  status: ACTIVE
+  locale: vi-85
+  version: "1.0.0"
+
+# CANON
+# CRI FDI is semantically distinct from FFI, FPI and API transport paths.
+# It permits direct transfer of runtime-native feature/object capability
+# between same-lineage runtimes without mandatory resource-ization.
+
+interface:
+  name: Function Direct Interface
+  acronym: FDI
+  role: direct_runtime_feature_transfer
+  lineage_requirement: same_runtime_lineage
+
+transfer_modes:
+  resourceized:
+    used_by: [FFI, FPI, API]
+    flow:
+      - exporter_runtime_object
+      - sio_stream
+      - encoder
+      - resourceization
+      - decoder
+      - importer_runtime_object
+    representations: [json, yaml, query_string, bytes]
+    property: "object semantics are reconstructed at importer"
+
+  direct:
+    used_by: [CRI_FDI]
+    flow:
+      - exporter_runtime_object
+      - direct_transfer
+      - importer_runtime_object
+    representations: [runtime_native]
+    property: "preserve runtime-native feature/object semantics"
+
+object_semantics:
+  preserved:
+    - class
+    - function
+    - object
+    - feature
+    - callable_behavior
+    - runtime_relationships
+  reconstruction_required: false
+
+inheritance:
+  importer_extension: allowed
+  target_scope: cona_fem.cap
+  semantics: "imported feature may be inherited, wrapped, composed or extended by target runtime"
+  constraint: "target runtime must satisfy compatible runtime lineage and authority/security policy"
+
+sio:
+  role: stream_envelope
+  direct_transfer: true
+  resourceization_required: false
+  note: "SIO remains the invocation/stream contract; FDI changes the transfer semantic, not the existence of the envelope."
+
+comparison:
+  FFI:
+    transfer: resourceized_or_abi_encoded
+    object_preservation: false
+  FPI:
+    transfer: resourceized_invocation_contract
+    object_preservation: false
+  API:
+    transfer: resourceized_representation
+    object_preservation: false
+  CRI_FDI:
+    transfer: direct_runtime_native
+    object_preservation: true
+    inheritance_at_importer: true
+
+security:
+  required:
+    - lineage_validation
+    - capability_validation
+    - authority_validation
+    - provenance_validation
+    - hookpoint_validation
+    - license_validation
+  rule: "direct transfer never bypasses runtime security, authority, provenance or fee controls"
+
+architecture:
+  exporter:
+    role: runtime_native_provider
+  direct_transfer:
+    role: runtime_native_bridge
+  importer:
+    role: runtime_native_consumer
+    target: cona_fem.cap
+  canonical_transport:
+    owner: hace-io-rac
+  execution_router:
+    owner: hace-me-race
+
+invariants:
+  - "FDI is not a serialized-object transport"
+  - "FDI is not equivalent to FFI"
+  - "FDI does not require JSON/YAML/query-string resourceization"
+  - "FDI may preserve class/function/object identity semantics only within compatible runtime lineage"
+  - "importer extension does not imply unrestricted authority"
