@@ -1,0 +1,39 @@
+# HEADER
+header:
+  id: SMF://hace.cona.io.rns-matrix.v1
+  intent: DECLARE_SCHEMA
+  status: ACTIVE
+  locale: vi-85
+  version: "1.0.0"
+
+rns:
+  cri:
+    role: cross_runtime_interface
+    examples: [cri.hace.fdi, cri.hace.fpi, cri.hace.ffi, cri.hace.hc, cri.hace.smb]
+  lti:
+    role: local_transport
+    examples: [lti.stdio, lti.pipe, lti.unix]
+  rli:
+    role: remote_transport
+    examples: [rli.http, rli.ws, rli.grpc]
+  a2a:
+    role: actor_to_actor
+  box:
+    role: exchange_boundary
+  net:
+    role: rac_network
+  on:
+    role: ownership_network
+  cli:
+    role: cli_capability_boundary
+
+ownership:
+  cona_io: consumer_assembler
+  hace_io_rac: canonical_transport
+  race: execution_router
+
+rules:
+  - "RAC URI identifies routing boundary; it does not expose implementation paths."
+  - "SIO carries invocation and data semantics; transport carries bytes."
+  - "CONA may adapt or assemble transport capabilities but must not duplicate canonical transport DNA."
+  - "Authority binding remains outside the CONA transport consumer boundary."
