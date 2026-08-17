@@ -1,0 +1,36 @@
+schema:
+  id: SMF://hace.cona.io.sio-format-registry.v1
+  version: "1.0.0"
+  status: ACTIVE
+
+sio_format:
+  root: sio/format
+  purpose: runtime_representation_adapter_registry
+
+runtimes:
+  php:
+    formats:
+      json:
+        operations: [encode, decode]
+  go:
+    formats:
+      json:
+        operations: [encode, decode]
+  rust:
+    formats:
+      json:
+        operations: [encode, decode]
+  python:
+    formats:
+      json:
+        operations: [encode, decode]
+
+selection:
+  same_runtime: pass_through
+  compatible_lineage: direct_transfer
+  cross_runtime: format_adapter
+
+invariant:
+  - SIO semantic envelope remains stable across representation adapters
+  - FDI direct transfer may bypass representation conversion
+  - format adapters do not define CRI authority or routing semantics
